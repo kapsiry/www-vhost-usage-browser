@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Kapsi Internet-käyttäjät ry / {{ title }}</title>
+<link type="text/css" rel="stylesheet" media="all"
+      href="{{ url_for('static', filename='style.css') }}" />
+{% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+<header id="header">
+<hgroup>
+<a href="/">
+<h1>WWW-sivustojen liikenne</h1>
+</a>
+</hgroup>
+</header>
+
+{% if get_flashed_messages() %}
+<section class="flashed-messages">
+<ul>
+  {% for msg in get_flashed_messages() %}
+  <li>{{ msg }}</li>
+  {% endfor %}
+</ul>
+</section>
+{% endif %}
+
+{% from "macros.html" import li_with_a %}
+<nav class="main-navigation">
+<ul>
+  {{ li_with_a('Etusivu', 'index') }}
+</ul>
+</nav>
+   
+<section class="main-section">
+{% block content %}
+{% endblock %}
+</section>
+
+{% include "footer.html" %}
+</body>
+</html>

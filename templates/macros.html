@@ -1,0 +1,26 @@
+{% macro render_field(field) %}
+  {% if field.type != 'HiddenField' %}
+  <dt>{{ field.label }}
+  <dd>{{ field(**kwargs)|safe }}
+  {% if field.errors %}
+    <ul class="errors">
+    {% for error in field.errors %}<li>{{ error }}{% endfor %}
+    </ul>
+  {% endif %}
+  </dd>
+  {% endif %}
+{% endmacro %}
+
+{% macro li_with_a(title, url) %}
+<li><a href="{{ url_for(url) }}">{{ title }}</a></li>
+{% endmacro %}
+
+{% macro render_usage_record(record) %}
+<tr>
+  <td>{{ record.domain }}</td>
+  <td>{{ record.date }}</td>
+  <td>{{ record.server }}</td>
+  <td>{{ record.bytes }}</td>
+  <td>{{ record.hits }}</td>
+</tr>
+{% endmacro %}

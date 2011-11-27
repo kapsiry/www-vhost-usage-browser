@@ -1,0 +1,4 @@
+flask==0.8
+Flask-WTF
+sqlobject
+psycopg2

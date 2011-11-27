@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content">
+
+<table class="records">
+  <tr>
+    <td>domain</td>
+    <td>date</td>
+    <td>server</td>
+    <td>bytes</td>
+    <td>hits</td>
+  </tr>
+{% from "macros.html" import render_usage_record %}
+{% for usage in usages %}
+  {{ render_usage_record(usage) }}
+{% endfor %}
+</table>
+
+</section>
+{% endblock %}
