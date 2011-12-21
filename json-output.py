@@ -26,7 +26,7 @@ top_hits = [x[0] for x in cur]
 
 data = dict(by_bytes=top_bytes, by_hits=top_hits, domains={})
 
-DATERANGE = "between '2011-12-10' and '2011-12-20'"
+DATERANGE = "> now() - '14 days'::interval"
 
 cur.execute("""SELECT date, domain, sum(hits) as hits, sum(bytes) as bytes
                FROM usage
