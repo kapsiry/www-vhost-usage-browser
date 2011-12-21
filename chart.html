@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    
+      // Load the Visualization API and the piechart package.
+      google.load("jquery", "1.7.1");
+      google.load('visualization', '1.0', {'packages':['corechart']});
+      
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+      var adata;
+      function drawChart() {
+        // Site to draw, change to one vhost if you like
+        var site = 'TOTAL';
+
+        // Read from JSON to this javascript structure
+        var traffic = {};
+
+        // This will be our graph data
+        var cdata = new google.visualization.DataTable();
+        cdata.addColumn('string', 'Date');
+        cdata.addColumn('number', 'hits (1000)');
+        cdata.addColumn('number', 'traffic (GB)');
+
+        // Fetch the JSON and when it arrives, do graph
+        $.getJSON('data.json', function(data) {
+          adata = data;
+          var hitlist = $("#by_hits");
+          $.each(data['by_hits'], function(key, val) {
+            hitlist.append('<li id="' + key + '">' + val + '</li>');
+          });
+          var trafficlist = $("#by_bytes");
+          $.each(data['by_bytes'], function(key, val) {
+            trafficlist.append('<li id="' + key + '">' + val + '</li>');
+          });
+          // For one site, sum hits for all servers
+          $.each(data['domains'][site], function(key, val) {
+            var date = val[0];
+            var hits = val[2];
+            var bytes = val[3];
+            if (date in traffic) {
+              hits += traffic[date]['h'];
+              bytes += traffic[date]['b'];
+            }
+            else {
+              traffic[date] = {};
+            }
+            traffic[date]['h'] = hits;
+            traffic[date]['b'] = bytes;
+          });
+          // Add data to graph
+          $.each(traffic, function(key, val) {
+            cdata.addRow([key, Math.round(val['h']/1000), Math.round(val['b']/1024/1024/1024)]);
+          });
+
+          // Instantiate and draw our chart, passing in some options.
+          var options = {
+            width: 500, height: 240,
+            title: site + " stats",
+          };
+          var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+          chart.draw(cdata, options);
+          
+        });        
+      }
+    </script>
+  </head>
+
+  <body>
+    <h1>Traffic visualisation</h1>
+    <p>The data is for last xx days</p>
+    <div id="chart_div"></div>
+    <div style="float: left; margin:1em;">
+      <h2>Top sites by requests</h2>
+      <ol id="by_hits"></ol>
+    </div>
+    <div style="float: left; margin:1em;">
+      <h2>Top sites by traffic</h2>
+      <ol id="by_bytes"></ol>
+    </div>
+  </body>
+</html>
