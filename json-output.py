@@ -3,7 +3,13 @@ import psycopg2
 import json
 import sys
 
-SQL_DOMAIN = "select domain from usage group by domain"
+# Last 30 days
+DATERANGE = "> now() - '31 days'::interval"
+
+SQL_DOMAIN = """SELECT domain
+                FROM usage
+                WHERE date """ + DATERANGE + """
+                GROUP BY domain"""
 # Top 20 domains by bytes
 SQL_DOMAIN_BYTES = SQL_DOMAIN + " order by sum(bytes) desc limit 20;"
 # Top 20 domains by requests
@@ -26,27 +32,25 @@ top_hits = [x[0] for x in cur]
 
 data = dict(by_bytes=top_bytes, by_hits=top_hits, domains={})
 
-DATERANGE = "> now() - '14 days'::interval"
-
-cur.execute("""SELECT date, domain, sum(hits) as hits, sum(bytes) as bytes
+cur.execute("""SELECT date, server, domain, sum(hits) as hits, sum(bytes) as bytes
                FROM usage
-               WHERE date """ + DATERANGE + """
-               GROUP BY date, domain
-               ORDER BY domain, date;""")
+               WHERE date """ + DATERANGE + """ AND domain IN %s
+               GROUP BY date, server, domain
+               ORDER BY domain, server, date;""", (tuple(top_bytes + top_hits),))
 totals = []
-for date, domain, tr_hits, tr_bytes in cur:
+for date, server, domain, tr_hits, tr_bytes in cur:
     d = data['domains'].get(domain, [])
-    d.append([str(date), long(tr_hits), long(tr_bytes)])
+    d.append([str(date), server, long(tr_hits), long(tr_bytes)])
     data['domains'][domain] = d
 
-cur.execute("""SELECT date, sum(hits) as hits, sum(bytes) as bytes
+cur.execute("""SELECT date, server, sum(hits) as hits, sum(bytes) as bytes
                FROM usage
                WHERE date """ + DATERANGE + """
-               GROUP BY date
-               ORDER BY date;""")
+               GROUP BY server, date
+               ORDER BY server, date;""")
 totals = []
-for date, tr_hits, tr_bytes in cur:
-    totals.append([str(date), long(tr_hits), long(tr_bytes)])
+for date, server, tr_hits, tr_bytes in cur:
+    totals.append([str(date), server, long(tr_hits), long(tr_bytes)])
 data['domains']['TOTAL'] = totals
 
 #print json.dumps(data, indent=2)
