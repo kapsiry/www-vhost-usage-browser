@@ -1,0 +1,6 @@
+env
+*.pyc
+*.sqlite3
+*.db
+data.json
+init-local-env.sh
