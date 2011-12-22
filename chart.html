@@ -25,7 +25,7 @@
         cdata.addColumn('number', 'traffic (GB)');
 
         // Fetch the JSON and when it arrives, do graph
-        $.getJSON('data.json', function(data) {
+        $.getJSON('sample.json', function(data) {
           adata = data;
           var hitlist = $("#by_hits");
           $.each(data['by_hits'], function(key, val) {
